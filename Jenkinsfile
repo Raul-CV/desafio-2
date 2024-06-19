@@ -8,12 +8,12 @@ pipeline {
     }
 
    stages {
-        stage('Checkout') {
-            steps {
-                // Reemplaza con la URL de tu repositorio
-                git 'https://github.com/Raul-CV/desafio-2.git'
-            }
-        }
+        // stage('Checkout') {
+        //     steps {
+        //         // Reemplaza con la URL de tu repositorio
+        //         git 'https://github.com/Raul-CV/desafio-2.git'
+        //     }
+        // }
         
         stage('Install dependencies') {
             steps {
