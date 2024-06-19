@@ -7,32 +7,36 @@ pipeline {
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
     }
 
-    stages {
-        // stage('Checkout') {
-        //     steps {
-        //         checkout scm
-        //     }
-        // }
+   stages {
+        stage('Checkout') {
+            steps {
+                // Reemplaza con la URL de tu repositorio
+                git 'https://github.com/Raul-CV/desafio-2.git'
+            }
+        }
+        
+        stage('Install dependencies') {
+            steps {
+                // Instalar dependencias si es necesario
+                sh 'pip install -r requirements.txt'
+            }
+        }
 
-        stage('Deploy Lambda Function') {
+        stage('Package') {
+            steps {
+                // Crear un archivo ZIP de la función Lambda
+                sh 'zip -r9 lambda_function.zip .'
+            }
+        }
+
+        stage('Deploy') {
             steps {
                 script {
+                    // Desplegar la función Lambda usando AWS CLI
                     sh '''
-                        # Define el nombre de tu función Lambda y el archivo .py
-                        LAMBDA_FUNCTION_NAME="milambdafuncion"
-                        LAMBDA_HANDLER="lambda_function.lambda_handler"
-                        LAMBDA_RUNTIME="python3.11"
-
-                        # Lee el código del archivo Python
-                        LAMBDA_CODE="$(< lambda_function.py)"
-
-                        # Crea o actualiza la función Lambda
-                        aws lambda create-function \
-                            --function-name $LAMBDA_FUNCTION_NAME \
-                            --handler $LAMBDA_HANDLER \
-                            --runtime $LAMBDA_RUNTIME \
-                            --role arn:aws:iam::767398072756:role/aws-rol-lambda \
-                            --code "InlineCode=$LAMBDA_CODE"
+                    aws lambda update-function-code \
+                        --function-name milambdafuncion \
+                        --zip-file fileb://lambda_function.zip
                     '''
                 }
             }
