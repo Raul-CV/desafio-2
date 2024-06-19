@@ -2,43 +2,37 @@ pipeline {
     agent any
 
     environment {
-        // AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
-        // AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
-        AWS_REGION = 'eu-west-2'  // Cambia esto por tu región
+        AWS_DEFAULT_REGION = 'eu-west-2'
+        AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
     }
 
     stages {
         // stage('Checkout') {
         //     steps {
-        //         // Reemplaza 'repo-url' con la URL de tu repositorio
-        //         git 'repo-url'
+        //         checkout scm
         //     }
         // }
 
-        stage('Install dependencies') {
+        stage('Deploy Lambda Function') {
             steps {
-                sh 'pip3 install -r requirements.txt -t package'
-            }
-        }
-
-        stage('Package Lambda') {
-            steps {
-                sh '''
-                cd package
-                zip -r9 ../function.zip .
-                cd ..
-                zip -g function.zip lambda_function.py
-                '''
-            }
-        }
-
-        stage('Deploy Lambda') {
-            steps {
-                withAWS(region: "${env.AWS_REGION}", credentials: 'aws-credentials-id') {
+                script {
                     sh '''
-                    aws lambda update-function-code \
-                    --function-name milambdafuncion \
-                    --zip-file fileb://function.zip
+                        # Define el nombre de tu función Lambda y el archivo .py
+                        LAMBDA_FUNCTION_NAME="milambdafuncion"
+                        LAMBDA_HANDLER="lambda_function.lambda_handler"
+                        LAMBDA_RUNTIME="python3.11"
+
+                        # Lee el código del archivo Python
+                        LAMBDA_CODE="$(< lambda_function.py)"
+
+                        # Crea o actualiza la función Lambda
+                        aws lambda create-function \
+                            --function-name $LAMBDA_FUNCTION_NAME \
+                            --handler $LAMBDA_HANDLER \
+                            --runtime $LAMBDA_RUNTIME \
+                            --role arn:aws:iam::767398072756:role/aws-rol-lambda \
+                            --code "InlineCode=$LAMBDA_CODE"
                     '''
                 }
             }
