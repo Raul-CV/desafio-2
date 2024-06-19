@@ -8,6 +8,12 @@ pipeline {
     }
 
     stages {
+        stage('Install dependencies') {
+            steps {
+                sh 'pip3 install -r requirements.txt -t package'
+            }
+        }
+
         stage('Package') {
             steps {
                 script {
