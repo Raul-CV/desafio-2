@@ -7,25 +7,19 @@ pipeline {
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
     }
 
-   stages {
-        // stage('Checkout') {
-        //     steps {
-        //         // Reemplaza con la URL de tu repositorio
-        //         git 'https://github.com/Raul-CV/desafio-2.git'
-        //     }
-        // }
-        
-        // stage('Install dependencies') {
-        //     steps {
-        //         // Instalar dependencias si es necesario
-        //         sh 'pip install -r requirements.txt'
-        //     }
-        // }
-
+    stages {
         stage('Package') {
             steps {
-                // Crear un archivo ZIP de la función Lambda
-                sh 'zip -r9 lambda_function.zip .'
+                script {
+                    // Definir la lista de archivos que deseas incluir en el ZIP
+                    def filesToZip = 'lambda_function.py' // Reemplaza con tus archivos
+
+                    // Crear el archivo ZIP usando Python y zipfile
+                    sh '''
+                    python -c "import zipfile; with zipfile.ZipFile('lambda_function.zip', 'w') as zf: 
+                    for f in '${filesToZip}'.split(): zf.write(f)"
+                    '''
+                }
             }
         }
 
