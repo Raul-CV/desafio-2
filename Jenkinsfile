@@ -15,12 +15,12 @@ pipeline {
         //     }
         // }
         
-        stage('Install dependencies') {
-            steps {
-                // Instalar dependencias si es necesario
-                sh 'pip install -r requirements.txt'
-            }
-        }
+        // stage('Install dependencies') {
+        //     steps {
+        //         // Instalar dependencias si es necesario
+        //         sh 'pip install -r requirements.txt'
+        //     }
+        // }
 
         stage('Package') {
             steps {
