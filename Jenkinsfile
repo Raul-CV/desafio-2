@@ -8,44 +8,28 @@ pipeline {
     }
 
     stages {
-        stage('Install Python') {
-           steps {
-               sh 'sudo apt-get update && sudo apt-get install -y python3'
+        // stage('Checkout') {
+        //     steps {
+        //         git 'https://github.com/Raul-CV/desafio-1.git'  // Cambia esto a tu repositorio
+        //     }
+        // }
+
+        stage('Terraform Inicia') {
+            steps {
+                sh 'terraform init'
             }
         }
 
-        stage('Install dependencies') {
+        stage('Terraform Apply') {
             steps {
-                sh 'pip3 install -r requirements.txt -t package'
+                sh 'terraform apply -auto-approve'
             }
         }
+    }
 
-        stage('Package') {
-            steps {
-                script {
-                    // Definir la lista de archivos que deseas incluir en el ZIP
-                    def filesToZip = 'lambda_function.py' // Reemplaza con tus archivos
-
-                    // Crear el archivo ZIP usando Python y zipfile
-                    sh '''
-                    python -c "import zipfile; with zipfile.ZipFile('lambda_function.zip', 'w') as zf: 
-                    for f in '${filesToZip}'.split(): zf.write(f)"
-                    '''
-                }
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                script {
-                    // Desplegar la función Lambda usando AWS CLI
-                    sh '''
-                    aws lambda update-function-code \
-                        --function-name milambdafuncion \
-                        --zip-file fileb://lambda_function.zip
-                    '''
-                }
-            }
+    post {
+        always {
+            cleanWs()
         }
     }
 }
